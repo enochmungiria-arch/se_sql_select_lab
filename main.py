@@ -1,109 +1,76 @@
 
 # STEP 1A
 # Import SQL Library and Pandas
+
 import sqlite3
 import pandas as pd
 
-# STEP 1B
-# Connect to the database
+# STEP 1: Connect to the database
 conn = sqlite3.connect("data.sqlite")
 
 
-# Display all employees (provided example)
-employee_data = pd.read_sql(
-    """SELECT * FROM employees""",
-    conn
-)
-
-print("---------------------Employee Data---------------------")
-print(employee_data)
-print("-------------------End Employee Data-------------------")
-
-
-# STEP 2
-# Select employee number and last name
+# STEP 2: Employee number and last name
 df_first_five = pd.read_sql("""
     SELECT employeeNumber, lastName
     FROM employees
 """, conn)
 
 
-# STEP 3
-# Select last name first, followed by employee number
+# STEP 3: Last name followed by employee number
 df_five_reverse = pd.read_sql("""
     SELECT lastName, employeeNumber
     FROM employees
 """, conn)
 
 
-# STEP 4
-# Rename employeeNumber to ID
+# STEP 4: Alias employeeNumber as ID
 df_alias = pd.read_sql("""
     SELECT lastName, employeeNumber AS ID
     FROM employees
 """, conn)
 
 
-# STEP 5
-# Categorize employees as Executive or Not Executive
+# STEP 5: Classify employees by role
 df_executive = pd.read_sql("""
     SELECT *,
         CASE
-            WHEN jobTitle = 'President'
-              OR jobTitle = 'VP Sales'
-              OR jobTitle = 'VP Marketing'
-            THEN 'Executive'
+            WHEN jobTitle IN ('President', 'VP Sales', 'VP Marketing')
+                THEN 'Executive'
             ELSE 'Not Executive'
         END AS role
     FROM employees
 """, conn)
 
 
-# STEP 6
-# Find the length of each employee's last name
+# STEP 6: Length of each last name
 df_name_length = pd.read_sql("""
     SELECT LENGTH(lastName) AS name_length
     FROM employees
 """, conn)
 
 
-# STEP 7
-# Extract the first two letters of each job title
+# STEP 7: First two letters of each job title
 df_short_title = pd.read_sql("""
     SELECT SUBSTR(jobTitle, 1, 2) AS short_title
     FROM employees
 """, conn)
 
 
-# Display all order details (provided example)
-order_details = pd.read_sql("""
-    SELECT * FROM orderDetails
-""", conn)
-
-print("------------------Order Details Data------------------")
-print(order_details)
-print("----------------End Order Details Data----------------")
-
-
-# STEP 8
-# Calculate the sum of rounded total prices
+# STEP 8: Sum of rounded order totals
 sum_total_price = pd.read_sql("""
     SELECT ROUND(priceEach * quantityOrdered) AS total_price
     FROM orderDetails
 """, conn).sum()
 
 
-# STEP 9
-# Return the original date and separate day, month, and year
+# STEP 9: Extract day, month, and year
 df_day_month_year = pd.read_sql("""
     SELECT
         orderDate,
         STRFTIME('%d', orderDate) AS day,
         STRFTIME('%m', orderDate) AS month,
         STRFTIME('%Y', orderDate) AS year
-    FROM orderDetails
+    FROM orders
 """, conn)
 
-
-# Close the connection
-conn.close()
+# Keep the connection open while tests use conn.
